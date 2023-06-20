@@ -32,9 +32,9 @@ Quaternions, meanwhile, overcome this problem by having 4 parameters instead of 
 
 Observe that the magnitude of a quaaternion is always equal to 1. This is useful when applying quaternions to rotate vectors, so the vectors' magnitude will not change.
 
-To apply a quaternion rotation to an actual vector, we first turn the (x, y, z) vector into a quaternion by adding a 4th element 0: (0, x, y, z). Let's define the rotation quaternion as `q` and the quaternion to be rotated as `p` (and the rotated quaternion as `p'`). To perform the rotation, we do 2 cross products: `p'` = `qpq^-1`. To get the final rotated vector, we just extract the `x'`, `y'`, and `z'` from the rotated quaternion: (0, `x'`, `y'`, `z'`).
+To apply a quaternion rotation to an actual vector, we first turn the (x, y, z) vector into a quaternion by adding a 4th element 0: (0, x, y, z). Let's define the rotation quaternion as `q` and the quaternion to be rotated as `p` (and the rotated quaternion as `p'`). To perform the rotation, we do 2 cross products: `p'` = `qpq^-1` (where the inverse of a quaternion is the same quaternion multiplied by -1). To get the final rotated vector, we just extract the `x'`, `y'`, and `z'` from the rotated quaternion: (0, `x'`, `y'`, `z'`).
 
-In practice, computers perform rotations using matrices, since these are incredibly fast for computers to compute. Quaternions can also be easily converted to rotation matrices: 
+In practice, computers perform rotations using matrices, since matrix math is incredibly fast for computers to compute. Quaternions can also be easily converted to rotation matrices: 
 
 ![image](https://github.com/Michaelszeng/Notes-On-Robotics/assets/35478698/5241a0b3-83f0-4090-a9ec-3a48ab532207)
 
