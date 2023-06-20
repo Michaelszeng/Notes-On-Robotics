@@ -17,9 +17,9 @@ ModalAI also puts the POSIX pipes in a directory that is not saved to disk, so t
 
 Internally, POSIX pipes are just FIFO buffers, but are also represented as files in the file system.
 
-There is also a lot of threadlocking in the implementation to ensure that no pipe gets written to by 2 services at the same time and such
+There is also a lot of multi-threading and mutex locking (using pthread.h) in the implementation to ensure that no pipe gets written to by 2 services at the same time and such.
 
-Overall, this seems like one of the most low-level, no-overhead ways to perform inter-process communicatio. Apparently, much faster than ROS topics.
+Overall, this seems like one of the most low-level, no-overhead ways to perform inter-process communication. Apparently, much faster than ROS topics.
 
 ### Quaternions
 
