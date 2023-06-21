@@ -24,13 +24,13 @@ Overall, this seems like one of the most low-level, no-overhead ways to perform 
 ### Quaternions
 I'm surprised I never explored these before. ModalAI uses quaternions to perform all their rotation between coordinate frames ([they have a lot of rotations](https://beta-docs.modalai.com/voxl-vision-px4-apriltag-relocalization-0_9/), in fact [this whole `.c` file](https://gitlab.com/voxl-public/voxl-sdk/services/voxl-vision-hub/-/blob/master/src/geometry.c) is for rotations), and my boss actually wrote the [matrix/vector math library](https://beta-docs.modalai.com/librc-math/) that powers the whole thing.
 
-Quaternions are an alternative to the traditional pitch, roll, yaw method of rotations (called Euler rotations), where all 3D rotations are a combination of those three. Euler rotations have a problem--"Gimbal Lock". I had a lot of trouble understanding this, so I will do my best to explain. When any of pitch, roll, or yaw is exactly 90 deg, the other 2 rotation axes will be colinear. 
+Quaternions are an alternative to the traditional pitch, roll, yaw method of rotations (called Euler rotations), where all 3D rotations are a combination of those three. Euler rotations have a problem--"Gimbal Lock". When any of pitch, roll, or yaw is exactly 90 deg, the other 2 rotation axes will be colinear, losing you a degree of freedom. This means, if you wanted to rotate infinitesimally in the third, lost axis, you physically could not. I actually do not undestand gimbal lock so hopefully I will figure this out and bother to rewrite this section.
 
 Quaternions, meanwhile, overcome this problem by having 4 parameters instead of 3. They're similar to axis-angle rotations, which might be easier to explain/understand. Axis-angle rotations simple define a unit vector using 3 parameters (x, y, z) to serve as the axis of rotation, and an angle θ to rotate around the axis. Quaternions can be easily derived from the angle-axis form: 
 
 (θ, x, y, z) = (cos(θ/2), x*sin(θ/2), y*sin(θ/2), z*sin(θ/2)) = (q0, q1, q2, q3)
 
-Observe that the magnitude of a quaaternion is always equal to 1. This is useful when applying quaternions to rotate vectors, so the vectors' magnitude will not change.
+Observe that the magnitude of a quaaternion is always equal to 1. This is useful when applying quaternions to rotate vectors, so the vectors' magnitude will not change. This is also the main advantage of quaternions over angle-axis rotations. 
 
 To apply a quaternion rotation to an actual vector, we first turn the (x, y, z) vector into a quaternion by adding a 4th element 0: (0, x, y, z). Let's define the rotation quaternion as `q` and the quaternion to be rotated as `p` (and the rotated quaternion as `p'`). To perform the rotation, we do 2 cross products: `p'` = `qpq^-1` (where the inverse of a rotation quaternion is the conjugate of the quaternion; the last three terms are multiplied by -1). To get the final rotated vector, we just extract the `x'`, `y'`, and `z'` from the rotated quaternion: (0, `x'`, `y'`, `z'`).
 
