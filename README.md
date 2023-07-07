@@ -62,7 +62,7 @@ If your child process doesn't need to modify any variables from the parent proce
 
 However, if your child process does need to modify variables it inherited from its parent, you need to be more careful. `pthread_atfork()` was made for this scenario, and provides opportunities to define handler functions that are called right before and right after the fork occurs, allowing you the opportunity to put all mutex locks into a known state when creating the child process. At least I think this is how it works--I have never actually tried.
 
-Overall, internet wisdom seems to advise against forking in multi-threaded applications, but in certain cases it doesn't seem too bad at all.
+Overall, internet wisdom seems to advise against forking in multi-threaded applications, but in certain cases it doesn't seem too bad at all. I hope I'm not missing something major :D
 
 Some sources I used in my research (in order of usefulness):
 - https://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_atfork.html
