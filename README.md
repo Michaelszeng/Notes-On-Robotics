@@ -50,12 +50,25 @@ or, equivalently:
 Note that rotation matrices and quaternions are not susceptible to gimbal lock (for some reason?).
 
 ### Threading and Multi-processing
-These past couple of weeks I've been working on a project called "voxl-apps". The vision for this system we (mostly James) designed involves having an App Manager application constantly running in the background, searching for and initializing app .so files, and waiting for commands from a command pipe to begin running an app. When a proper command is received, an app is then run in a child process, with any inter-process communication done through pipes. This way, whenever a developer makes an app, no matter how bad they mess up the app (seg faults, or whatever), they can never crash the App Manager itself. The App Manager will be intelligent enough to ensure the drone is always doing something safe even when an app isn't actively running.
+These past couple of weeks I've been working on a project called `voxl-apps`. The vision for this system we (mostly James) designed involves having an App Manager application constantly running in the background, searching for and initializing app .so files, and waiting for commands from a command pipe to begin running an app. When a proper command is received, an app is then run in a child process, with any inter-process communication done through pipes. This way, whenever a developer makes an app, no matter how bad they mess up the app (seg faults, or whatever), they can never crash the App Manager itself. The App Manager will be intelligent enough to ensure the drone is always doing something safe even when an app isn't actively running.
 
 Firstly, this utilization of multi-processing is pretty interesting and not something I had thought much about before (typically multi-processing is thought of as a way to increase speed). Multiple threads are also employed to manage the app, watching their status to ensure they are only run-able when they are done initializing and ensuring they can be terminated on timeouts and on error. My former experience in threading and multi-processing involves some messing around in Python. So this complexity involved a learning curve. 
 
-In C/POSIX land, there are complexities especially when using multi-threading and multi-processing at the same time. Creating threads in child processes is the easy case; since the child process basically becomes independent (no shared memory with its parent) there is no issues with doing this at all. Some complexity arises when trying to fork new child processes in a multi-threaded application.
+In C/POSIX land, there are complexities especially when using multi-threading and multi-processing at the same time. Creating threads in child processes is the easy case; since the child process basically becomes independent (no shared memory with its parent) there are no issues with doing this at all. However, some complexity arises when trying to fork new child processes in a multi-threaded application.
 
+If the child process wants to modify any variables from the parent process, and those variables have a chance of being mutex locked at the time `fork()` is called, then there is a race condition in the child process; it's inconsistent whether that variable that the child wants to use will be mutex locked or not. This is definitely a problem, but doesn't mean that forking in a multi-threaded process should never be done.
 
+If your child process doesn't need to modify any variables from the parent process, then forking the child from a multi-threaded parent is perfectly fine. `voxl-apps` is exactly like this; the child process that is forked off needs to know the name of the app that its parent created it to run, but after it knows the app name, the child process independently finds the app's .so file, reads the contents, and runs the app without ever having to use its parent's variables again. In this case, the child doesn't care about the state of mutex locks on all its parents variables.
 
-All my C notes can be found here: https://www.notion.so/C-Notes-dd071483f6274bf6bdd92fbbbb95dd66?pvs=4
+However, if your child process does need to modify variables it inherited from its parent, you need to be very careful. `pthread_atfork()` was made for this scenario, and provides opportunities to define handler functions that are called right before and right after the fork occurs, allowing you the opportunity to put all mutex locks into a known state when creating the child process. At least I think this is how it works--I have never actually tried.
+
+Overall, internet wisdom seems to advise against forking in multi-threaded applications, but in certain cases it doesn't seem too bad at all.
+
+Some sources I used in my research (in order of usefulness):
+- https://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_atfork.html
+- https://thorstenball.com/blog/2014/10/13/why-threads-cant-fork/
+- https://man7.org/linux/man-pages/man7/signal-safety.7.html
+- https://stackoverflow.com/questions/39890363/what-happens-when-a-thread-forks
+- http://www.qnx.com/developers/docs/7.1/#com.qnx.doc.neutrino.getting_started/topic/s1_procs_Multithreaded_fork.html
+
+I've also taken more detailed notes about the technicalities of performing multi-threading and multi-processing in my [C Notes document](https://www.notion.so/C-Notes-dd071483f6274bf6bdd92fbbbb95dd66?pvs=4).
