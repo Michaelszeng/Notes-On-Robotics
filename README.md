@@ -50,12 +50,12 @@ or, equivalently:
 Note that rotation matrices and quaternions are not susceptible to gimbal lock (for some reason?).
 
 ### Threading and Multi-processing
-These past couple of weeks I've been working on a project called "voxl-apps". This involves having an App Manager application constantly running in the background, searching for and initializing app .so files, and waiting for commands from a command pipe to begin running an app. When a proper command is received, an app is then run in a child process, with any inter-process communication done through pipes. This way, whenever a developer makes an app, no matter how bad they mess up the app (seg faults, or whatever), they can never crash the App Manager itself. The App Manager will be intelligent enough to ensure the drone is always doing something safe even when an app isn't actively running.
+These past couple of weeks I've been working on a project called "voxl-apps". The vision for this system we (mostly James) designed involves having an App Manager application constantly running in the background, searching for and initializing app .so files, and waiting for commands from a command pipe to begin running an app. When a proper command is received, an app is then run in a child process, with any inter-process communication done through pipes. This way, whenever a developer makes an app, no matter how bad they mess up the app (seg faults, or whatever), they can never crash the App Manager itself. The App Manager will be intelligent enough to ensure the drone is always doing something safe even when an app isn't actively running.
 
-Firstly, this utilization of multi-processing is pretty interesting and not something I had thought much about before (typically multi-processing is thought of as a way to increase speed). Multiple threads are also employed to manage the app, watching their status to ensure they are only run-able when they are done initializing and ensuring they can be terminated on timeouts and on error.
+Firstly, this utilization of multi-processing is pretty interesting and not something I had thought much about before (typically multi-processing is thought of as a way to increase speed). Multiple threads are also employed to manage the app, watching their status to ensure they are only run-able when they are done initializing and ensuring they can be terminated on timeouts and on error. My former experience in threading and multi-processing involves some messing around in Python. So this complexity involved a learning curve. 
 
-My former experience in threading and multi-processing involves some messing around in Python. So this complexity involved a learning curve. 
+In C/POSIX land, there are complexities especially when using multi-threading and multi-processing at the same time. Creating threads in child processes is the easy case; since the child process basically becomes independent (no shared memory with its parent) there is no issues with doing this at all. Some complexity arises when trying to fork new child processes in a multi-threaded application.
 
-In C/POSIX land, 
+
 
 All my C notes can be found here: https://www.notion.so/C-Notes-dd071483f6274bf6bdd92fbbbb95dd66?pvs=4
