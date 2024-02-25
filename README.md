@@ -34,7 +34,9 @@ Quaternions overcome many of the problems of Euler angles by having 4 parameters
 
 Observe that the magnitude of a quaternion is always equal to 1. This is useful when applying quaternions to rotate vectors, so the vectors' magnitude will not change.
 
-To apply a quaternion rotation directly to an actual vector, we first turn the (x, y, z) vector into a quaternion by adding a 4th element 0: (0, x, y, z). Let's define the rotation quaternion as `q` and the quaternion to be rotated as `p` (and the rotated quaternion as `p'`). To perform the rotation, we do 2 cross products: `p'` = `qpq^-1` (where the inverse of a rotation quaternion is the conjugate of the quaternion; the last three terms are multiplied by -1). To get the final rotated vector, we just extract the `x'`, `y'`, and `z'` from the rotated quaternion: (0, `x'`, `y'`, `z'`).
+To compose quaternions (i.e. apply multiple rotations) (say, we want to compose q1=(θ,x,y,z) and q2=(a,b,c,d) to get q'), you apply this complicated multiplication: q' = (θa-xb-yc-zd, θb+xa+yd-zc, θc-xd+ya+zb, θd+xc-yb+za)
+
+To apply a quaternion rotation directly to a vector in 3D space, we first turn the (x, y, z) vector into a quaternion by adding a 4th element 0: (0, x, y, z). Let's define the rotation quaternion as `q` and the quaternion to be rotated as `p` (and the rotated quaternion as `p'`). To perform the rotation, we do 2 cross products: `p'` = `qpq^-1` (where the inverse of a rotation quaternion is the conjugate of the quaternion; the last three terms are multiplied by -1). To get the final rotated vector, we just extract the `x'`, `y'`, and `z'` from the rotated quaternion: (0, `x'`, `y'`, `z'`).
 
 In practice, computers perform rotations using matrices, since matrix math can be incredibly fast when well-optimized for hardware. Quaternions can also be easily converted to rotation matrices: 
 
